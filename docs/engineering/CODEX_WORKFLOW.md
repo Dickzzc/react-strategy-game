@@ -4,7 +4,7 @@
 
 仓库是 React + Vite + HTML5 Canvas 的浏览器 RTS Demo。Codex Local 负责 Windows 上的开发、浏览器玩法检查和本机性能证据；Codex Cloud 只能处理可以在干净 Linux/云端环境验证的代码、测试、文档和审查任务。GitHub Actions 负责可重复的安装、测试和构建，不代替本机 GPU 验证。
 
-当前没有绑定远程 GitHub 仓库。首次创建私有仓库、添加 `origin`、首次推送、创建 PR、配置分支保护都需要单独确认；本地配置不依赖 OpenAI API Key，也不复制用户级 Codex 登录令牌。
+当前远程仓库是 `https://github.com/Dickzzc/react-strategy-game`，默认分支为 `main`；部署分支已经推送，但尚未创建 PR 或配置分支保护。本地配置不依赖 OpenAI API Key，也不复制用户级 Codex 登录令牌。
 
 ## 开始本地任务
 

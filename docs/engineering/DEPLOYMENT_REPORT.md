@@ -9,6 +9,8 @@
 - 技术栈：React 18、Vite 8、HTML5 Canvas。
 - 本地初始 Git 提交：`87f0267 chore: import existing RTS baseline`。
 - 当前部署分支：`codex/deploy-collaboration-system`，最新提交 `337407a`。
+- GitHub 私有仓库：`https://github.com/Dickzzc/react-strategy-game`，默认分支 `main`。
+- 已推送：`main` 与 `codex/deploy-collaboration-system`；尚未创建 PR 或配置分支保护。
 - 原始项目没有 Git 历史、远程地址、测试脚本、`perf:quick` 或 GitHub Actions。
 - 基线构建首次失败，真实根因是 Vite 根目录缺少 `index.html`；部署分支新增正确入口，保留原 `public/index.html`。
 - 干净 Worktree 安装首次失败，真实根因是 `@vitejs/plugin-react@4.7.0` 不支持 Vite 8；已升级到官方兼容的 `@vitejs/plugin-react@6.1.2`，并重新生成锁文件。
@@ -26,7 +28,9 @@
 | 单元测试入口 | 已部署并验证 | `npm run test:ci`：4 passed, 0 failed |
 | 生产构建 | 已修复并验证 | `npm ci` 与 `npm run build` 均退出 0 |
 | `perf:quick` / GPU 门禁 | 未实施 | 项目没有真实基准脚本；不能伪造性能数据 |
-| GitHub 远程仓库、PR、分支保护 | 未实施 | 首次创建/绑定/推送需要用户确认 |
+| GitHub 远程仓库 | 已部署并验证 | 私有仓库已创建，`origin`、`main` 和部署分支均已验证 |
+| GitHub Actions 实际运行 | 未验证 | 当前没有运行记录；需要 PR 才会触发部署分支的 CI |
+| PR、分支保护 | 未实施 | 需要单独确认 |
 | Codex Cloud 环境 | 未实施 | `codex cloud list` 退出 0，当前没有任务；没有提交 Cloud 任务 |
 
 ## 环境检查
@@ -62,9 +66,15 @@ scripts/codex/check-task.ps1 (fresh Worktree)       exit 0
 scripts/codex/cleanup-task.ps1                     exit 0
 codex cloud list                                    exit 0 (No tasks found)
 scripts/verify-local.ps1 -Runs 3                    exit 1 (perf:quick missing; report says NOT CONFIGURED)
+gh repo create Dickzzc/react-strategy-game          exit 0 (private repository)
+git push -u origin main                             exit 0
+git push -u origin codex/deploy-collaboration-system exit 0
+gh run list                                         exit 0 (no runs found)
 ```
 
 构建和测试日志来自本机终端；性能阻塞报告位于 `.codex-perf-logs\20261027-123507\report.md`。未执行的 GitHub Actions、PR、Cloud agent、浏览器玩法 smoke test 和本机 GPU/1% Low 测试保持明确的未验证状态。
+
+GitHub Actions 页面：<https://github.com/Dickzzc/react-strategy-game/actions>。当前无运行记录，因为 `main` 推送的是基线提交，工作流文件只存在于部署分支，尚未创建 PR。
 
 ## 变更文件
 
@@ -78,7 +88,6 @@ scripts/verify-local.ps1 -Runs 3                    exit 1 (perf:quick missing; 
 
 ## 用户确认后才能继续的动作
 
-1. 确认目标 GitHub 仓库名和是否创建私有仓库。
-2. 确认允许添加 `origin` 并首次推送本地 `main` 与部署分支。
-3. 确认是否创建 PR 和配置 `main` 分支保护/Ruleset。
-4. 确认 Codex Cloud 连接到该仓库后，再提交 Cloud A/B/C 任务。
+1. 确认是否创建 `codex/deploy-collaboration-system` 到 `main` 的 PR。
+2. 确认是否配置 `main` 分支保护/Ruleset。
+3. 确认 Codex Cloud 连接到该仓库后，再提交 Cloud A/B/C 任务。
