@@ -1,0 +1,3 @@
+# Project-local Codex settings. Keep user-level Codex and MCP configuration unchanged.
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"

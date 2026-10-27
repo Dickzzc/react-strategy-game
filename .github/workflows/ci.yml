@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the submitted commit
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run configured static checks
+        shell: bash
+        run: |
+          for script in lint typecheck; do
+            if node -e "const scripts = require('./package.json').scripts || {}; process.exit(scripts['$script'] ? 0 : 1)"; then
+              npm run "$script"
+            else
+              echo "::notice title=Check not configured::$script is not defined in package.json"
+            fi
+          done
+
+      - name: Run deterministic tests
+        run: npm run test:ci
+
+      - name: Build production bundle
+        run: npm run build
