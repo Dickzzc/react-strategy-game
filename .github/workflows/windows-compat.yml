@@ -1,0 +1,55 @@
+name: Windows compatibility
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: windows-compat-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  windows-build-and-test:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the submitted commit
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run project preflight
+        shell: pwsh
+        run: ./scripts/preflight.ps1 -RepoPath $env:GITHUB_WORKSPACE
+
+      - name: Run deterministic tests
+        run: npm run test:ci
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Verify script paths and line endings are readable on Windows
+        shell: pwsh
+        run: |
+          $required = @('scripts/preflight.ps1', 'scripts/verify-local.ps1', 'scripts/codex/new-task.ps1', 'scripts/codex/list-tasks.ps1', 'scripts/codex/check-task.ps1', 'scripts/codex/cleanup-task.ps1')
+          foreach ($relative in $required) {
+            $path = Join-Path $env:GITHUB_WORKSPACE $relative
+            if (-not (Test-Path -LiteralPath $path)) { throw "Missing required script: $relative" }
+            [void](Get-Content -LiteralPath $path -Raw)
+          }
+
+      - name: Declare the GPU boundary
+        shell: pwsh
+        run: Write-Host 'Windows performance/GPU verification is NOT RUN on GitHub-hosted runners. Use scripts/verify-local.ps1 on the target machine.'

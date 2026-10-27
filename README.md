@@ -25,8 +25,9 @@ npm run build
 
 ```
 react-strategy-game/
+├── index.html             # Vite 入口
 ├── public/
-│   └── index.html          # HTML 模板，挂载点为 #root
+│   └── index.html          # 历史静态入口，保留以避免覆盖原文件
 ├── src/
 │   ├── index.jsx           # React 入口，挂载 App 组件
 │   ├── App.jsx             # 根组件，负责实例化引擎和 UI
@@ -46,6 +47,11 @@ react-strategy-game/
 ├── vite.config.js          # Vite 配置
 └── README.md
 ```
+
+## 工程协同
+
+本仓库使用项目级 Codex 配置、Git Worktree、GitHub Actions 和 Windows 本地验证脚本。
+具体边界和操作见 `docs/engineering/`。当前项目是 React + Vite + HTML5 Canvas，未引入 PixiJS；性能数据必须来自真实 Windows 机器，GitHub Runner 只负责构建和测试。
 
 ## 核心功能
 
