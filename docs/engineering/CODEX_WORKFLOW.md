@@ -33,6 +33,8 @@ git diff --check
 
 远程 PR 的建议顺序是：检查分支状态 → 推送任务分支 → 创建一个 PR → 等待 Linux CI 和 Windows 兼容性检查 → 本地完成玩法/GPU 验收 → 人工合并。不要自动合并 `main`。
 
+私有仓库的 GitHub Actions 会消耗账号套餐提供的分钟数，Windows Runner 通常比 Linux Runner 更昂贵；免费额度、超额计费和并发限制以 GitHub 当前套餐页面为准。预算有限时优先手动触发 Windows 工作流，并保留本机 GPU 验收，不要把 CI Runner 当作性能测试机。
+
 ## 安全清理
 
 ```powershell
