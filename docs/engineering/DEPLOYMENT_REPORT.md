@@ -9,8 +9,8 @@
 - 技术栈：React 18、Vite 8、HTML5 Canvas。
 - 本地初始 Git 提交：`87f0267 chore: import existing RTS baseline`。
 - 当前部署分支：`codex/deploy-collaboration-system`，PR #1 的 head 为本次部署提交。
-- GitHub 私有仓库：`https://github.com/Dickzzc/react-strategy-game`，默认分支 `main`。
-- 已推送：`main` 与 `codex/deploy-collaboration-system`；尚未创建 PR 或配置分支保护。
+- GitHub 公开仓库：`https://github.com/Dickzzc/react-strategy-game`，默认分支 `main`。
+- 已推送：`main` 与 `codex/deploy-collaboration-system`；PR #1 已创建，`main` 已启用分支保护。
 - 原始项目没有 Git 历史、远程地址、测试脚本、`perf:quick` 或 GitHub Actions。
 - 基线构建首次失败，真实根因是 Vite 根目录缺少 `index.html`；部署分支新增正确入口，保留原 `public/index.html`。
 - 干净 Worktree 安装首次失败，真实根因是 `@vitejs/plugin-react@4.7.0` 不支持 Vite 8；已升级到官方兼容的 `@vitejs/plugin-react@6.1.2`，并重新生成锁文件。
@@ -21,17 +21,17 @@
 | --- | --- | --- |
 | 项目级 AGENTS.md | 已部署 | 根据实际 Canvas 架构编写 |
 | 项目级 `.codex/config.toml` | 已部署 | 仅设置项目级审批/沙盒，不改全局配置 |
-| Git 本地基线与部署分支 | 已部署 | 无远程推送 |
+| Git 本地基线与部署分支 | 已部署并验证 | `origin`、`main` 与部署分支均已同步 |
 | Worktree 脚本 | 已部署并验证 | 创建、列出、目标路径安装/测试/构建、保守清理均已实跑 |
-| Linux CI | 已部署 | 尚未在 GitHub 远程执行 |
-| Windows 兼容性工作流 | 已部署 | 尚未在 GitHub Runner 执行 |
+| Linux CI | 已部署并验证 | PR #1 工作流成功 |
+| Windows 兼容性工作流 | 已部署并验证 | PR #1 工作流成功 |
 | 单元测试入口 | 已部署并验证 | `npm run test:ci`：4 passed, 0 failed |
 | 生产构建 | 已修复并验证 | `npm ci` 与 `npm run build` 均退出 0 |
 | `perf:quick` / GPU 门禁 | 未实施 | 项目没有真实基准脚本；不能伪造性能数据 |
-| GitHub 远程仓库 | 已部署并验证 | 私有仓库已创建，`origin`、`main` 和部署分支均已验证 |
+| GitHub 远程仓库 | 已部署并验证 | 公开仓库已创建，`origin`、`main` 和部署分支均已验证 |
 | GitHub Actions 实际运行 | 已部署并验证 | PR #1 的 Linux CI 与 Windows 兼容性均成功 |
 | Pull Request | 已创建并验证 | PR #1，未合并 |
-| 分支保护 | 因套餐阻塞 | GitHub 返回 HTTP 403：私有仓库需升级到 Pro；`main.protected=false` |
+| 分支保护 | 已部署并验证 | PR、1 次批准、`build-and-test`、禁止强推/删除、管理员不可绕过 |
 | Codex Cloud 环境 | 未实施 | `codex cloud list` 退出 0，当前没有任务；没有提交 Cloud 任务 |
 
 ## 环境检查
@@ -67,26 +67,28 @@ scripts/codex/check-task.ps1 (fresh Worktree)       exit 0
 scripts/codex/cleanup-task.ps1                     exit 0
 codex cloud list                                    exit 0 (No tasks found)
 scripts/verify-local.ps1 -Runs 3                    exit 1 (perf:quick missing; report says NOT CONFIGURED)
-gh repo create Dickzzc/react-strategy-game          exit 0 (private repository)
+gh repo create Dickzzc/react-strategy-game          exit 0 (initial repository)
 git push -u origin main                             exit 0
 git push -u origin codex/deploy-collaboration-system exit 0
 gh run list                                         exit 0 (no runs found)
 gh pr create                                         exit 0 (PR #1)
 gh run watch 40451190555                             exit 0 (CI success)
 gh run watch 40451190587                             exit 0 (Windows compatibility success)
-PUT branches/main/protection                      exit 1 (HTTP 403, private-repository plan limit)
-GET branches/main                                  exit 0 (`protected: false`)
+gh repo edit --visibility public                   exit 0
+PUT branches/main/protection                      exit 0
+GET branches/main                                  exit 0 (`protected: true`)
+tracked/history secret scan                         no high-risk matches
 ```
 
-构建和测试日志来自本机终端；性能阻塞报告位于 `.codex-perf-logs\20261027-123507\report.md`。未执行的 GitHub Actions、PR、Cloud agent、浏览器玩法 smoke test 和本机 GPU/1% Low 测试保持明确的未验证状态。
+构建和测试日志来自本机终端；性能阻塞报告位于 `.codex-perf-logs\20261027-123507\report.md`。未执行的 Cloud agent、浏览器玩法 smoke test 和本机 GPU/1% Low 测试保持明确的未验证状态。
 
 GitHub Actions 页面：<https://github.com/Dickzzc/react-strategy-game/actions>。
 
-- Linux CI：<https://github.com/Dickzzc/react-strategy-game/actions/runs/40451190555>，success。
-- Windows compatibility：<https://github.com/Dickzzc/react-strategy-game/actions/runs/40451190587>，success。
+- Linux CI：<https://github.com/Dickzzc/react-strategy-game/actions/runs/40451550060>，success。
+- Windows compatibility：<https://github.com/Dickzzc/react-strategy-game/actions/runs/40451549983>，success。
 - Pull Request：<https://github.com/Dickzzc/react-strategy-game/pull/1>，open，未合并。
 
-GitHub 免费套餐当前不允许为该私有仓库启用分支保护。可选替代方案是升级 GitHub Pro；不建议为了获得规则而把仓库公开。升级前继续使用 PR、CI 必须通过的审查约定，但 GitHub 不会在服务器端强制阻止绕过。
+仓库已公开。发布前扫描没有发现密钥、Token、`.env` 或私钥；文档中的本地 Windows 路径会随公开仓库可见，这是已知隐私暴露边界。GitHub Actions 与分支保护现在均已实际验证。
 
 ## 变更文件
 
@@ -100,5 +102,5 @@ GitHub 免费套餐当前不允许为该私有仓库启用分支保护。可选�
 
 ## 用户确认后才能继续的动作
 
-1. 如需服务器端强制保护，升级 GitHub Pro 后重新配置；当前 PR 尚未合并。
+1. 当前 PR 尚未合并，需人工完成代码审查后再决定是否合并。
 2. 确认 Codex Cloud 连接到该仓库后，再提交 Cloud A/B/C 任务。
