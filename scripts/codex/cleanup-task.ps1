@@ -50,8 +50,19 @@ if (-not $ConfirmCleanup) {
   exit 0
 }
 
+$removeCode = 0
 & git -C $task worktree remove $task
-if ($LASTEXITCODE -ne 0) { throw "Git refused to remove worktree $task." }
+$removeCode = $LASTEXITCODE
+if ($removeCode -ne 0) {
+  $stillRegistered = ((git -C $mainRepo worktree list --porcelain 2>$null) -join "`n") -match [regex]::Escape($task)
+  $remaining = if (Test-Path -LiteralPath $task) { @(Get-ChildItem -Force -LiteralPath $task) } else { @() }
+  if (-not $stillRegistered -and $remaining.Count -eq 0) {
+    Remove-Item -LiteralPath $task -Force
+    Write-Warning "Git removed the Worktree metadata but Windows left an empty directory; the verified empty directory was removed."
+  } else {
+    throw "Git refused to remove worktree $task; remaining files or Worktree metadata were preserved."
+  }
+}
 if ($isMerged) {
   & git -C $mainRepo branch -d $branch
   if ($LASTEXITCODE -ne 0) { Write-Warning "Worktree removed, but branch $branch was retained because Git refused branch deletion." }
