@@ -8,7 +8,7 @@
 
 - 技术栈：React 18、Vite 8、HTML5 Canvas。
 - 本地初始 Git 提交：`87f0267 chore: import existing RTS baseline`。
-- 当前部署分支：`codex/deploy-collaboration-system`，最新提交 `7d4ef89`。
+- 当前部署分支：`codex/deploy-collaboration-system`，最新提交 `337407a`。
 - 原始项目没有 Git 历史、远程地址、测试脚本、`perf:quick` 或 GitHub Actions。
 - 基线构建首次失败，真实根因是 Vite 根目录缺少 `index.html`；部署分支新增正确入口，保留原 `public/index.html`。
 - 干净 Worktree 安装首次失败，真实根因是 `@vitejs/plugin-react@4.7.0` 不支持 Vite 8；已升级到官方兼容的 `@vitejs/plugin-react@6.1.2`，并重新生成锁文件。
