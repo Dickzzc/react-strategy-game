@@ -31,7 +31,7 @@
 | GitHub 远程仓库 | 已部署并验证 | 私有仓库已创建，`origin`、`main` 和部署分支均已验证 |
 | GitHub Actions 实际运行 | 已部署并验证 | PR #1 的 Linux CI 与 Windows 兼容性均成功 |
 | Pull Request | 已创建并验证 | PR #1，未合并 |
-| 分支保护 | 未实施 | 需要单独确认 |
+| 分支保护 | 因套餐阻塞 | GitHub 返回 HTTP 403：私有仓库需升级到 Pro；`main.protected=false` |
 | Codex Cloud 环境 | 未实施 | `codex cloud list` 退出 0，当前没有任务；没有提交 Cloud 任务 |
 
 ## 环境检查
@@ -74,6 +74,8 @@ gh run list                                         exit 0 (no runs found)
 gh pr create                                         exit 0 (PR #1)
 gh run watch 40451190555                             exit 0 (CI success)
 gh run watch 40451190587                             exit 0 (Windows compatibility success)
+PUT branches/main/protection                      exit 1 (HTTP 403, private-repository plan limit)
+GET branches/main                                  exit 0 (`protected: false`)
 ```
 
 构建和测试日志来自本机终端；性能阻塞报告位于 `.codex-perf-logs\20261027-123507\report.md`。未执行的 GitHub Actions、PR、Cloud agent、浏览器玩法 smoke test 和本机 GPU/1% Low 测试保持明确的未验证状态。
@@ -83,6 +85,8 @@ GitHub Actions 页面：<https://github.com/Dickzzc/react-strategy-game/actions>
 - Linux CI：<https://github.com/Dickzzc/react-strategy-game/actions/runs/40451190555>，success。
 - Windows compatibility：<https://github.com/Dickzzc/react-strategy-game/actions/runs/40451190587>，success。
 - Pull Request：<https://github.com/Dickzzc/react-strategy-game/pull/1>，open，未合并。
+
+GitHub 免费套餐当前不允许为该私有仓库启用分支保护。可选替代方案是升级 GitHub Pro；不建议为了获得规则而把仓库公开。升级前继续使用 PR、CI 必须通过的审查约定，但 GitHub 不会在服务器端强制阻止绕过。
 
 ## 变更文件
 
@@ -96,5 +100,5 @@ GitHub Actions 页面：<https://github.com/Dickzzc/react-strategy-game/actions>
 
 ## 用户确认后才能继续的动作
 
-1. 确认是否配置 `main` 分支保护/Ruleset；当前 PR 尚未合并。
+1. 如需服务器端强制保护，升级 GitHub Pro 后重新配置；当前 PR 尚未合并。
 2. 确认 Codex Cloud 连接到该仓库后，再提交 Cloud A/B/C 任务。
