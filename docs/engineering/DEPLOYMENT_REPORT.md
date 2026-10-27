@@ -8,7 +8,7 @@
 
 - 技术栈：React 18、Vite 8、HTML5 Canvas。
 - 本地初始 Git 提交：`87f0267 chore: import existing RTS baseline`。
-- 当前部署分支：`codex/deploy-collaboration-system`，最新提交 `337407a`。
+- 当前部署分支：`codex/deploy-collaboration-system`，PR #1 的 head 为本次部署提交。
 - GitHub 私有仓库：`https://github.com/Dickzzc/react-strategy-game`，默认分支 `main`。
 - 已推送：`main` 与 `codex/deploy-collaboration-system`；尚未创建 PR 或配置分支保护。
 - 原始项目没有 Git 历史、远程地址、测试脚本、`perf:quick` 或 GitHub Actions。
@@ -29,8 +29,9 @@
 | 生产构建 | 已修复并验证 | `npm ci` 与 `npm run build` 均退出 0 |
 | `perf:quick` / GPU 门禁 | 未实施 | 项目没有真实基准脚本；不能伪造性能数据 |
 | GitHub 远程仓库 | 已部署并验证 | 私有仓库已创建，`origin`、`main` 和部署分支均已验证 |
-| GitHub Actions 实际运行 | 未验证 | 当前没有运行记录；需要 PR 才会触发部署分支的 CI |
-| PR、分支保护 | 未实施 | 需要单独确认 |
+| GitHub Actions 实际运行 | 已部署并验证 | PR #1 的 Linux CI 与 Windows 兼容性均成功 |
+| Pull Request | 已创建并验证 | PR #1，未合并 |
+| 分支保护 | 未实施 | 需要单独确认 |
 | Codex Cloud 环境 | 未实施 | `codex cloud list` 退出 0，当前没有任务；没有提交 Cloud 任务 |
 
 ## 环境检查
@@ -70,11 +71,18 @@ gh repo create Dickzzc/react-strategy-game          exit 0 (private repository)
 git push -u origin main                             exit 0
 git push -u origin codex/deploy-collaboration-system exit 0
 gh run list                                         exit 0 (no runs found)
+gh pr create                                         exit 0 (PR #1)
+gh run watch 40451190555                             exit 0 (CI success)
+gh run watch 40451190587                             exit 0 (Windows compatibility success)
 ```
 
 构建和测试日志来自本机终端；性能阻塞报告位于 `.codex-perf-logs\20261027-123507\report.md`。未执行的 GitHub Actions、PR、Cloud agent、浏览器玩法 smoke test 和本机 GPU/1% Low 测试保持明确的未验证状态。
 
-GitHub Actions 页面：<https://github.com/Dickzzc/react-strategy-game/actions>。当前无运行记录，因为 `main` 推送的是基线提交，工作流文件只存在于部署分支，尚未创建 PR。
+GitHub Actions 页面：<https://github.com/Dickzzc/react-strategy-game/actions>。
+
+- Linux CI：<https://github.com/Dickzzc/react-strategy-game/actions/runs/40451190555>，success。
+- Windows compatibility：<https://github.com/Dickzzc/react-strategy-game/actions/runs/40451190587>，success。
+- Pull Request：<https://github.com/Dickzzc/react-strategy-game/pull/1>，open，未合并。
 
 ## 变更文件
 
@@ -88,6 +96,5 @@ GitHub Actions 页面：<https://github.com/Dickzzc/react-strategy-game/actions>
 
 ## 用户确认后才能继续的动作
 
-1. 确认是否创建 `codex/deploy-collaboration-system` 到 `main` 的 PR。
-2. 确认是否配置 `main` 分支保护/Ruleset。
-3. 确认 Codex Cloud 连接到该仓库后，再提交 Cloud A/B/C 任务。
+1. 确认是否配置 `main` 分支保护/Ruleset；当前 PR 尚未合并。
+2. 确认 Codex Cloud 连接到该仓库后，再提交 Cloud A/B/C 任务。
