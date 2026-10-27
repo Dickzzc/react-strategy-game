@@ -4,7 +4,8 @@ param(
   [string]$MainBranch = 'main',
   [switch]$ConfirmCleanup,
   [switch]$AllowUnmerged,
-  [switch]$AllowNoUpstream
+  [switch]$AllowNoUpstream,
+  [switch]$RemoveGenerated
 )
 
 $ErrorActionPreference = 'Stop'
@@ -48,6 +49,16 @@ Write-Host "Merged into ${MainBranch}: $isMerged"
 if (-not $ConfirmCleanup) {
   Write-Host 'Dry run only. Pass -ConfirmCleanup to remove this worktree.' -ForegroundColor Yellow
   exit 0
+}
+
+if ($RemoveGenerated) {
+  foreach ($relative in @('node_modules', 'dist', '.codex-perf-logs')) {
+    $generated = Join-Path $task $relative
+    if (Test-Path -LiteralPath $generated) {
+      Write-Host "Removing explicitly requested generated directory: $generated"
+      Remove-Item -LiteralPath $generated -Recurse -Force
+    }
+  }
 }
 
 $removeCode = 0

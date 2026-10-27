@@ -38,9 +38,12 @@ git diff --check
 ```powershell
 .\scripts\codex\cleanup-task.ps1 -TaskPath 'D:\User\下载\react-strategy-game-worktrees\ui-readability'
 .\scripts\codex\cleanup-task.ps1 -TaskPath 'D:\User\下载\react-strategy-game-worktrees\ui-readability' -AllowNoUpstream -AllowUnmerged -ConfirmCleanup
+# 只有确认目录内全是可重建产物时，才显式清理依赖和构建输出：
+.\scripts\codex\cleanup-task.ps1 -TaskPath 'D:\User\下载\react-strategy-game-worktrees\ui-readability' -AllowNoUpstream -AllowUnmerged -ConfirmCleanup -RemoveGenerated
 ```
 
 默认只做检查。脚本拒绝删除有未提交修改、存在未推送提交或未合并的 Worktree；使用 `-AllowUnmerged` 时只删除干净 Worktree，保留未合并分支。
+`-RemoveGenerated` 只处理固定的 `node_modules`、`dist` 和 `.codex-perf-logs` 目录，且必须由操作者显式传入。
 
 ## 失败处理
 

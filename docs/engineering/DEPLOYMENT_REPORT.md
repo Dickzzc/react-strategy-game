@@ -8,9 +8,10 @@
 
 - 技术栈：React 18、Vite 8、HTML5 Canvas。
 - 本地初始 Git 提交：`87f0267 chore: import existing RTS baseline`。
-- 当前部署分支：`codex/deploy-collaboration-system`。
+- 当前部署分支：`codex/deploy-collaboration-system`，最新提交 `7d4ef89`。
 - 原始项目没有 Git 历史、远程地址、测试脚本、`perf:quick` 或 GitHub Actions。
 - 基线构建首次失败，真实根因是 Vite 根目录缺少 `index.html`；部署分支新增正确入口，保留原 `public/index.html`。
+- 干净 Worktree 安装首次失败，真实根因是 `@vitejs/plugin-react@4.7.0` 不支持 Vite 8；已升级到官方兼容的 `@vitejs/plugin-react@6.1.2`，并重新生成锁文件。
 
 ## 状态
 
@@ -19,13 +20,14 @@
 | 项目级 AGENTS.md | 已部署 | 根据实际 Canvas 架构编写 |
 | 项目级 `.codex/config.toml` | 已部署 | 仅设置项目级审批/沙盒，不改全局配置 |
 | Git 本地基线与部署分支 | 已部署 | 无远程推送 |
-| Worktree 脚本 | 已部署 | 已配置，待最终 smoke test 记录 |
+| Worktree 脚本 | 已部署并验证 | 创建、列出、目标路径安装/测试/构建、保守清理均已实跑 |
 | Linux CI | 已部署 | 尚未在 GitHub 远程执行 |
 | Windows 兼容性工作流 | 已部署 | 尚未在 GitHub Runner 执行 |
-| 单元测试入口 | 已部署 | Node 内置 `node:test`，待最终运行记录 |
+| 单元测试入口 | 已部署并验证 | `npm run test:ci`：4 passed, 0 failed |
+| 生产构建 | 已修复并验证 | `npm ci` 与 `npm run build` 均退出 0 |
 | `perf:quick` / GPU 门禁 | 未实施 | 项目没有真实基准脚本；不能伪造性能数据 |
 | GitHub 远程仓库、PR、分支保护 | 未实施 | 首次创建/绑定/推送需要用户确认 |
-| Codex Cloud 环境 | 未验证 | 当前客户端没有完成本仓库 Cloud 连接配置 |
+| Codex Cloud 环境 | 未实施 | `codex cloud list` 退出 0，当前没有任务；没有提交 Cloud 任务 |
 
 ## 环境检查
 
@@ -46,7 +48,33 @@ codex mcp list                       exit 0
 gh auth status                       authenticated as Dickzzc
 ```
 
-最终验证结果会在完成本地测试、构建和 Worktree smoke test 后补入本节。未执行的 GitHub Actions、PR、Cloud、GPU 测试保持明确的未验证状态。
+部署后验证：
+
+```text
+npm install --save-dev @vitejs/plugin-react@^6.1.2  exit 0
+npm ci --no-audit --no-fund                         exit 0
+npm run test:ci                                     exit 0 (4 passed, 0 failed)
+npm run build                                       exit 0
+scripts/preflight.ps1                               exit 0
+scripts/codex/new-task.ps1                          exit 0
+scripts/codex/list-tasks.ps1                        exit 0
+scripts/codex/check-task.ps1 (fresh Worktree)       exit 0
+scripts/codex/cleanup-task.ps1                     exit 0
+codex cloud list                                    exit 0 (No tasks found)
+scripts/verify-local.ps1 -Runs 3                    exit 1 (perf:quick missing; report says NOT CONFIGURED)
+```
+
+构建和测试日志来自本机终端；性能阻塞报告位于 `.codex-perf-logs\20261027-123507\report.md`。未执行的 GitHub Actions、PR、Cloud agent、浏览器玩法 smoke test 和本机 GPU/1% Low 测试保持明确的未验证状态。
+
+## 变更文件
+
+- `index.html`：补齐 Vite 根入口，修复原始构建失败。
+- `package.json` / `package-lock.json`：添加 `test`/`test:ci`，并把 React Vite 插件对齐到 Vite 8。
+- `AGENTS.md`、`.codex/config.toml`：项目规则和项目级 Codex 边界。
+- `.github/`：Linux CI、Windows 兼容性工作流和 PR 模板。
+- `scripts/`：只读预检、本机性能证据、Worktree 创建/列出/检查/清理。
+- `test/world.test.js`：地图放置、选择查询、单位边界移动和生产队列测试。
+- `docs/engineering/`：工作流、Cloud 任务模板、本地性能门禁和本报告。
 
 ## 用户确认后才能继续的动作
 
