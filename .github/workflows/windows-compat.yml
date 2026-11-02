@@ -37,6 +37,17 @@ jobs:
       - name: Run deterministic tests
         run: npm run test:ci
 
+      - name: Check CPU simulation budgets
+        run: npm run perf:quick
+
+      - name: Preserve CPU performance samples
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpu-perf-windows
+          path: .codex-perf-logs/quick-*.json
+          if-no-files-found: warn
+
       - name: Build production bundle
         run: npm run build
 

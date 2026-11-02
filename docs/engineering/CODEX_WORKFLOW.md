@@ -29,7 +29,7 @@ git status --short
 git diff --check
 ```
 
-性能或渲染任务还要在同一台 Windows 机器、相同地图/单位数量/分辨率/设置下执行三次本地流程。没有 `perf:quick` 或没有可核验指标时，报告 `NOT CONFIGURED` 或 `NOT MEASURED`，不换用另一个未经批准的基准。
+性能或渲染任务还要在同一台 Windows 机器、相同地图/单位数量/分辨率/设置下执行三次本地流程。当前 `perf:quick` 只测 CPU 模拟，浏览器 FPS/GPU 仍写 `NOT MEASURED`；详细采样范围和预算见 `LOCAL_PERF_TEST.md`。
 
 远程 PR 的建议顺序是：检查分支状态 → 推送任务分支 → 创建一个 PR → 等待 Linux CI 和 Windows 兼容性检查 → 本地完成玩法/GPU 验收 → 人工合并。不要自动合并 `main`。
 

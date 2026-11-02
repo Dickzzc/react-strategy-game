@@ -53,6 +53,7 @@ function Write-Report([string]$Status, [string]$Reason) {
   $lines.Add('## Metrics')
   $lines.Add('')
   $lines.Add('This script records output; it does not invent or derive metrics that `perf:quick` did not print.')
+  $lines.Add('The configured quick benchmark measures CPU World.update only. Its p95/p99 update times are not browser frame times or GPU results.')
   $lines.Add('')
   foreach ($label in @('Average FPS', '1% Low FPS', 'p95 frame time', 'p99 frame time', 'Long-frame count')) {
     $lines.Add("- ${label}: NOT MEASURED unless an exact supporting line appears in the raw logs.")
@@ -109,5 +110,5 @@ if ($failed) {
   throw "At least one perf:quick run failed. Report written to $reportPath"
 }
 
-Write-Report 'PASSED' "All $Runs `perf:quick` commands exited 0. Review the raw output for real 1% Low, p95/p99, and long-frame evidence before merging."
+Write-Report 'PASSED' "All $Runs perf:quick commands exited 0 (CPU simulation budgets only). Browser FPS, GPU, and full-frame verification remain NOT MEASURED."
 Write-Host "Performance verification passed at the process level. Report: $reportPath" -ForegroundColor Green

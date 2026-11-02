@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "seed": 20261102,
+  "mapSize": 50,
+  "warmupTicks": 120,
+  "sampleTicks": 600,
+  "fixedDt": 0.016666666666666666,
+  "budgetsMs": { "p95": 8, "p99": 16.667 },
+  "scenarios": [
+    { "name": "movement", "entities": 256 },
+    { "name": "combat", "entities": 256 },
+    { "name": "production", "entities": 64 }
+  ]
+}

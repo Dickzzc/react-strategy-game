@@ -2,6 +2,22 @@
 
 这些提示词描述允许的范围，不代表任务已经提交或完成。当前仓库已绑定到 GitHub 公开仓库 `Dickzzc/react-strategy-game`；提交 Cloud 任务前仍需确认 Cloud 连接、分支和权限。
 
+## 本地 CLI 入口
+
+环境 ID 和默认目标分支保存在 `.codex/cloud.json`；该文件不含凭据，也不表示环境已经连通。在任务工作树根目录执行：
+
+```powershell
+./scripts/codex/cloud.ps1 -Action Check
+./scripts/codex/cloud.ps1 -Action Submit
+./scripts/codex/cloud.ps1 -Action Status -TaskId '<实际任务 ID>'
+```
+
+`Check` 通过带 `--env` 的查询验证环境可见性；`Submit` 在检查通过后提交一个只读安装、测试、构建和 CPU 门禁任务。默认分支为 `main`，它必须已经包含本次新增的性能脚本；合并前可在推送功能分支后用 `-Branch codex/perf-cloud-config` 验证该分支。`-EnvironmentId`、`-Branch`、`-CodexCommand` 和 `-Prompt` 可显式覆盖本次调用，不改变全局 Codex 设置。子命令失败会保留错误并退出，脚本不会将空列表算作连接成功。
+
+2026-11-02 的诊断：默认 CLI `0.149.1` 与桌面自带 CLI `0.166.0-alpha.5.1` 都返回 `no cloud environments are available for this workspace`。仓库和全局环境查询的 HTTP 状态均为 200，全局列表为 `[]`；登录状态正常。尚未确认发布环境与 CLI 是否属于同一个账号/工作区，不能据此断言环境 ID 无效或要求重新发布。浏览器操作入口停在登录页；完成账号/工作区核对后，再运行 Check。
+
+CLI 的 `error.log` 可能包含账号标识，保留在本地，不提交或直接公开。官方命令说明：<https://learn.chatgpt.com/docs/developer-commands?surface=cli>；环境配置：<https://learn.chatgpt.com/docs/cloud>。
+
 ## Cloud A：移动规则与测试
 
 ```text

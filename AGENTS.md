@@ -10,6 +10,10 @@
 
 Do not invent Pixi, pathfinding, vehicle-avoidance, GPU-buffer, or `perf:quick` capabilities that are not present in the source. The current demo has simple direct movement and random map/AI placement; future work must be explicit about that limitation.
 
+`npm run perf:quick` runs deterministic CPU-only `World.update` workloads for movement, combat, and production. Settings and policy budgets are in `scripts/perf/config.json`; raw samples, source revision, hardware, and state hashes are saved under `.codex-perf-logs/`. This excludes Canvas, GPU, React, player/AI controllers, and browser FPS. Use `docs/engineering/LOCAL_PERF_TEST.md` for the measurement boundary.
+
+`.codex/cloud.json` stores the requested Cloud environment ID and branch, not credentials or proof of connectivity. `scripts/codex/cloud.ps1 -Action Check` validates visibility before submission. A successful empty unfiltered task list alone does not verify an environment.
+
 ## Change boundaries
 
 - One task uses one branch and one worktree. Do not edit `main` directly.
