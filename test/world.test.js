@@ -50,6 +50,49 @@ test('unit movement advances toward a target and stops on an invalid map cell', 
   assert.equal(unit.targetPos, null);
 });
 
+test('world updates a stable entity snapshot when entities are added or removed', () => {
+  const world = makeGrassWorld();
+  const updates = [];
+  const spawned = { health: 1, update: () => updates.push('spawned') };
+  const removed = {
+    health: 1,
+    update() {
+      updates.push('removed');
+      world.addEntity(spawned);
+      this.health = 0;
+    },
+  };
+  const survivor = { health: 1, update: () => updates.push('survivor') };
+  world.addEntity(removed);
+  world.addEntity(survivor);
+
+  world.update(1 / 60);
+
+  assert.deepEqual(updates, ['removed', 'survivor']);
+  assert.deepEqual(world.entities, [survivor, spawned]);
+});
+
+test('nested world updates do not overwrite the outer update snapshot', () => {
+  const world = makeGrassWorld();
+  const updates = [];
+  let nested = false;
+  world.addEntity({
+    health: 1,
+    update() {
+      updates.push('first');
+      if (!nested) {
+        nested = true;
+        world.update(1 / 60);
+      }
+    },
+  });
+  world.addEntity({ health: 1, update: () => updates.push('second') });
+
+  world.update(1 / 60);
+
+  assert.deepEqual(updates, ['first', 'first', 'second', 'second']);
+});
+
 test('building production adds the queued unit after its production time', () => {
   const world = makeGrassWorld();
   const factory = new Building(4, 4, 'blue', 'barracks', world);

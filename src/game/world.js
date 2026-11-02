@@ -33,6 +33,8 @@ export class World {
     }
     // 所有实体（单位和建筑）
     this.entities = [];
+    this._updateSnapshot = [];
+    this._isUpdating = false;
   }
 
   /**
@@ -54,13 +56,30 @@ export class World {
 
   /** 更新所有实体 */
   update(dt) {
-    // 使用副本防止在迭代中修改数组
-    for (const entity of [...this.entities]) {
-      entity.update(dt);
-      // 移除死亡实体
-      if (entity.health <= 0) {
-        this.removeEntity(entity);
+    // 复用快照缓冲区，仍避免迭代期间的增删影响本轮实体顺序。
+    // 递归更新时使用独立数组，以免覆盖外层更新的快照。
+    const isOuterUpdate = !this._isUpdating;
+    const snapshot = isOuterUpdate ? this._updateSnapshot : [];
+    const entityCount = this.entities.length;
+    if (isOuterUpdate) this._isUpdating = true;
+
+    try {
+      snapshot.length = entityCount;
+      for (let i = 0; i < entityCount; i++) {
+        snapshot[i] = this.entities[i];
       }
+
+      for (let i = 0; i < entityCount; i++) {
+        const entity = snapshot[i];
+        entity.update(dt);
+        // 移除死亡实体
+        if (entity.health <= 0) {
+          this.removeEntity(entity);
+        }
+      }
+    } finally {
+      snapshot.length = 0;
+      if (isOuterUpdate) this._isUpdating = false;
     }
   }
 
