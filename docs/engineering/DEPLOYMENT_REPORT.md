@@ -1,5 +1,15 @@
 # Codex Cloud + Local + GitHub 协同部署报告
 
+## 2026-11-02 配置补充
+
+PR #1 已合并到 `main`，提交为 `b8f39b674ef175cab99e715bd1729cf0561bc1d7`。本次配置在独立分支 `codex/perf-cloud-config` 中进行。
+
+新增 `perf:quick` CPU 模拟门禁和原始 JSON 样本，Linux/Windows CI 已配置执行与附件保存。本机 `npm ci`、7/7 测试、生产构建和三次 CPU 门禁均退出 0；GPU、浏览器 FPS 和整帧指标仍未测量。范围与预算见 `LOCAL_PERF_TEST.md`。
+
+新增 `.codex/cloud.json` 与 `scripts/codex/cloud.ps1`，提供 Check/Submit/Status。用户报告已发布环境并完成云端安装、测试、构建验证，且确认网页与 CLI 使用同一个个人账号。三个 CLI 版本（含隔离测试的稳定版 0.166.0）均未发现环境，Check 退出 1。当前 CLI 连通性仍未解决；源码证实错误发生在具体 ID 比较和任务提交之前，目录兼容或服务端可见性问题有待确认。脱敏复现与网页 Cloud 使用方式见 `CLOUD_TASKS.md`。
+
+以下保留 2026-10-27 初次部署快照；其中“PR 未合并”和“perf:quick 缺失”仅描述当时状态。
+
 ## 报告范围
 
 本报告记录对 `D:\User\下载\react-strategy-game` 的实际检查和本地配置。`D:\User\下载\RTS_Codex_Cloud_Local_GitHub_Starter` 是模板包，未直接安装，因为其安装脚本引用了包内不存在的 GitHub Actions 模板；配置以真实项目结构为准。
