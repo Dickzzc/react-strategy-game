@@ -14,9 +14,27 @@
 
 `Check` 通过带 `--env` 的查询验证环境可见性；`Submit` 在检查通过后提交一个只读安装、测试、构建和 CPU 门禁任务。默认分支为 `main`，它必须已经包含本次新增的性能脚本；合并前可在推送功能分支后用 `-Branch codex/perf-cloud-config` 验证该分支。`-EnvironmentId`、`-Branch`、`-CodexCommand` 和 `-Prompt` 可显式覆盖本次调用，不改变全局 Codex 设置。子命令失败会保留错误并退出，脚本不会将空列表算作连接成功。
 
-2026-11-02 的诊断：默认 CLI `0.149.1` 与桌面自带 CLI `0.166.0-alpha.5.1` 都返回 `no cloud environments are available for this workspace`。仓库和全局环境查询的 HTTP 状态均为 200，全局列表为 `[]`；登录状态正常。尚未确认发布环境与 CLI 是否属于同一个账号/工作区，不能据此断言环境 ID 无效或要求重新发布。浏览器操作入口停在登录页；完成账号/工作区核对后，再运行 Check。
+2026-11-02 的诊断：默认 CLI `0.149.1`、桌面自带 CLI `0.166.0-alpha.5.1`、隔离运行的稳定版 `0.166.0` 均返回 `no cloud environments are available for this workspace`。仓库和全局环境查询的 HTTP 状态均为 200，全局列表为 `[]`；登录状态正常。用户已确认网页发布环境与 CLI 使用同一个个人账号，不再要求重复发布或创建环境。稳定版仅安装到 npm 缓存用于比较，全局 CLI 和认证未修改。
 
-CLI 的 `error.log` 可能包含账号标识，保留在本地，不提交或直接公开。官方命令说明：<https://learn.chatgpt.com/docs/developer-commands?surface=cli>；环境配置：<https://learn.chatgpt.com/docs/cloud>。
+源码排查确认：`codex-rs/cloud-tasks/src/lib.rs` 中 `resolve_environment_id` 先获取环境列表，列表为空时直接报错，尚未比较用户传入的 ID；`env_detect.rs` 使用 `/backend-api/wham/environments` 及其 by-repo 查询。因此，此错误不能证明 ID 格式错误，也不是仓库构建失败。不要解码 ID、改写服务地址或绕过可见性检查来制造成功。
+
+官方文档分别描述新版 Cloud environments 和 Cloud (Legacy)；截图中的 Install script、Start skill、保存草稿/发布与新版设置相符。结合 CLI 的空目录，目录兼容或服务端可见性问题是合理推测，尚无直接证据确认其具体根因，也没有验证有效的本地配置修复。
+
+保留已发布环境，通过网页/桌面的 Cloud 环境选择器启动普通任务可继续工作；设置聊天中的后续修改用于更新环境本身。CLI 接入仍为 BLOCKED，不等同于整个 Cloud 不可用。若需向产品支持报告，可提供以下脱敏复现（原始 `error.log` 不直接公开）：
+
+```text
+Date: 2026-11-02
+Repository: Dickzzc/react-strategy-game
+Account/workspace: same personal account (confirmed by user)
+Published web environment: reported by user; Install script and Start skill configured
+CLI versions: 0.149.1, 0.166.0-alpha.5.1, 0.166.0
+Command: codex cloud list --env react-strategy-game --limit 1 --json
+Result: exit 1, no cloud environments are available for this workspace
+Environment discovery: HTTP 200, global inventory []
+Task submission: not reached
+```
+
+CLI 的 `error.log` 可能包含账号标识，保留在本地，不提交或直接公开。官方命令说明：<https://learn.chatgpt.com/docs/cli/reference>；新版环境：<https://learn.chatgpt.com/docs/environments/cloud-environments>；Legacy 环境：<https://learn.chatgpt.com/docs/environments/cloud-environment>。
 
 ## Cloud A：移动规则与测试
 

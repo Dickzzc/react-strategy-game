@@ -34,7 +34,7 @@ try {
     # Unlike an unfiltered task list, this also validates environment visibility.
     & $command.Source cloud list --env $EnvironmentId --limit 1 --json
     if ($LASTEXITCODE -ne 0) {
-      throw "Cloud environment check failed (exit $LASTEXITCODE). No task was submitted. Compare the publishing account/workspace and CLI account. CLI diagnostic log: $(Join-Path $repo 'error.log')"
+      throw "Cloud environment check failed (exit $LASTEXITCODE). No task was submitted. See docs/engineering/CLOUD_TASKS.md for the verified diagnostics and environment compatibility limits. CLI diagnostic log: $(Join-Path $repo 'error.log')"
     }
     if ($Action -eq 'Submit') {
       & $command.Source cloud exec --env $EnvironmentId --branch $Branch --attempts 1 $Prompt
